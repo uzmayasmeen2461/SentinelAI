@@ -1,0 +1,13 @@
+[project]
+name = "sentinel-ai"
+version = "1.0.0"
+description = "SentinelAI Risk & Regulatory Intelligence Copilot"
+requires-python = ">=3.11"
+
+dependencies = [
+    "streamlit[snowflake]",
+    "pandas",
+    "plotly",
+    "graphviz",
+    "networkx"
+]

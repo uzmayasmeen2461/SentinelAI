@@ -1,0 +1,25 @@
+definition_version: 2
+
+entities:
+  sentinel_ai:
+    type: streamlit
+
+    identifier:
+      name: SENTINELAI_APP
+      database: SENTINEL_AI_DB
+      schema: COMPLIANCE
+
+    title: "SentinelAI - Risk & Regulatory Intelligence Copilot"
+
+    query_warehouse: COMPUTE_WH
+
+    runtime_name: SYSTEM$WAREHOUSE_RUNTIME
+
+    main_file: streamlit_app.py
+
+    artifacts:
+      - streamlit_app.py
+      - utils.py
+      - pages/
+      - .streamlit/
+      - environment.yml

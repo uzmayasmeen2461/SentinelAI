@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: sentinel-ai
+Version: 1.0.0
+Summary: SentinelAI Risk & Regulatory Intelligence Copilot
+Requires-Python: >=3.8
+Requires-Dist: plotly
+Requires-Dist: graphviz
+Requires-Dist: networkx
