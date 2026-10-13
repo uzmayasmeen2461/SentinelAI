@@ -5,10 +5,24 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from utils import get_kpis, get_signals_by_type, get_signals_by_severity, get_risk_summary
 
 st.markdown(
-    '<p style="color:#546E7A;font-size:0.9rem;margin-bottom:-8px;">SentinelAI</p>'
-    '<h1 style="margin-top:0;">Risk Command Center</h1>'
-    '<p style="color:#78909C;margin-top:-10px;">'
-    'From risk signal to evidence-backed regulatory finding.</p>',
+    """
+    <div style="padding-top: 24px; margin-bottom: 24px;">
+        <p style="
+            color: #546E7A;
+            font-size: 0.9rem;
+            margin: 0 0 8px 0;
+        ">
+            SentinelAI
+        </p>
+        <h1 style="
+            color: #102A43;
+            margin: 0;
+            line-height: 1.2;
+        ">
+            Risk Command Center
+        </h1>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 

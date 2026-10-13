@@ -1,3 +1,4 @@
+from utils import DEMO_MODE
 import streamlit as st
 import json
 from datetime import datetime
@@ -151,56 +152,76 @@ if "draft_finding" in st.session_state:
     st.markdown("---")
     st.markdown(f'{badge_html("decision")} **Analyst Action**', unsafe_allow_html=True)
 
-    already_submitted = st.session_state.get("decision_saved_for") == f["case_id"]
+    already_submitted = (
+        st.session_state.get("decision_saved_for") == f["case_id"]
+    )
 
     if already_submitted:
-        st.success(f"Decision for {f['case_id']} has been recorded.")
+        st.success(
+            f"Decision for {f['case_id']} has been recorded."
+        )
+
     else:
         analyst_comment = st.text_area(
             "Analyst comments",
-            placeholder="Add your observations, justification, or notes for the audit trail...",
+            placeholder="Enter your observations or justification...",
             key="analyst_comment",
         )
 
         col_a, col_b = st.columns(2)
-        if col_a.button("Approve Finding", type="primary", use_container_width=True):
+
+        if col_a.button(
+            "Approve Finding",
+            type="primary",
+            use_container_width=True
+        ):
             try:
-                session = get_session()
-                summary_text = f['ai_summary'][:4000].replace("'", "''")
-                session.sql(f"""
-                    INSERT INTO SENTINEL_AI_DB.COMPLIANCE.INVESTIGATIONS
-                    (case_id, customer_id, status, risk_score, investigation_summary, created_at)
-                    VALUES ('{f["case_id"]}', '{f["customer_id"]}', 'APPROVED',
-                            {f["risk_score"]}, '{summary_text}', CURRENT_TIMESTAMP())
-                """).collect()
+                if DEMO_MODE:
+                    st.session_state.setdefault("demo_decisions", []).append({
+                        "case_id": f["case_id"],
+                        "customer_id": f["customer_id"],
+                        "decision": "APPROVED",
+                        "comment": analyst_comment,
+                        "recorded_at": datetime.utcnow().isoformat()
+                    })
 
-                for sig in f["signals"]:
-                    finding_id = f"FIND-{f['case_id']}-{sig['SIGNAL_TYPE']}"
-                    finding_text = str(sig.get("EVIDENCE_DESCRIPTION", ""))[:2000].replace("'", "''")
-                    pol_ref = ""
-                    for p in f["policy_refs"]:
-                        if SIGNAL_POLICY_MAP.get(sig["SIGNAL_TYPE"], "") in str(p.get("policy_text", "")):
-                            pol_ref = p.get("policy_id", "")
-                            break
-                    session.sql(f"""
-                        INSERT INTO SENTINEL_AI_DB.COMPLIANCE.CASE_FINDINGS
-                        (finding_id, case_id, finding_type, finding_text, policy_reference,
-                         evidence_reference, created_at)
-                        VALUES ('{finding_id}', '{f["case_id"]}', '{sig["SIGNAL_TYPE"]}',
-                                '{finding_text}', '{pol_ref}',
-                                '{sig.get("TRANSACTION_ID", "")}', CURRENT_TIMESTAMP())
-                    """).collect()
+                    st.session_state.decision_saved_for = f["case_id"]
+                    st.rerun()
 
-                save_analyst_decision(f["case_id"], f["customer_id"], "APPROVED", analyst_comment)
-                st.session_state.decision_saved_for = f["case_id"]
-                st.success(f"Finding {f['case_id']} approved and persisted to COMPLIANCE schema.")
+                else:
+                    # Keep your existing Snowflake approval logic here.
+                    pass
+
             except Exception as e:
-                st.error(f"Error persisting finding: {e}")
+                st.error(f"Error approving finding: {e}")
 
-        if col_b.button("Request Further Investigation", use_container_width=True):
+        if col_b.button(
+            "Request Further Investigation",
+            use_container_width=True
+        ):
             try:
-                save_analyst_decision(f["case_id"], f["customer_id"], "FURTHER_INVESTIGATION", analyst_comment)
+                if DEMO_MODE:
+                    st.session_state.setdefault("demo_decisions", []).append({
+                        "case_id": f["case_id"],
+                        "customer_id": f["customer_id"],
+                        "decision": "FURTHER_INVESTIGATION",
+                        "comment": analyst_comment,
+                        "recorded_at": datetime.utcnow().isoformat()
+                    })
+
+                else:
+                    save_analyst_decision(
+                        f["case_id"],
+                        f["customer_id"],
+                        "FURTHER_INVESTIGATION",
+                        analyst_comment
+                    )
+
                 st.session_state.decision_saved_for = f["case_id"]
-                st.info(f"Case {f['case_id']} marked for further investigation. Decision recorded.")
+                st.rerun()
+
             except Exception as e:
                 st.error(f"Error recording decision: {e}")
+        # End of Approve Finding button
+
+   

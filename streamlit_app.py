@@ -37,8 +37,15 @@ def evaluator_login():
     return False
 
 
-if "demo_auth" in st.secrets:
-    if not evaluator_login():
+import os
+
+if os.getenv("SENTINEL_DEMO_MODE", "false").lower() != "true":
+    try:
+        has_demo_auth = "demo_auth" in st.secrets
+    except FileNotFoundError:
+        has_demo_auth = False
+
+    if has_demo_auth and not evaluator_login():
         st.stop()
 
 st.markdown("""
