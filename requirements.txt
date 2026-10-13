@@ -1,0 +1,6 @@
+streamlit[snowflake]
+pandas
+plotly
+graphviz
+networkx
+snowflake-snowpark-python

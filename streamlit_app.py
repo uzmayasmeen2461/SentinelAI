@@ -7,6 +7,40 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+import hmac
+
+def evaluator_login():
+    if st.session_state.get("authenticated", False):
+        return True
+
+    st.title("SentinelAI")
+    st.subheader("Hackathon Evaluation Access")
+
+    with st.form("evaluator_login"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Sign in")
+
+    if submitted:
+        expected_user = st.secrets["demo_auth"]["username"]
+        expected_password = st.secrets["demo_auth"]["password"]
+
+        valid_user = hmac.compare_digest(username, expected_user)
+        valid_password = hmac.compare_digest(password, expected_password)
+
+        if valid_user and valid_password:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Invalid username or password.")
+
+    return False
+
+
+if "demo_auth" in st.secrets:
+    if not evaluator_login():
+        st.stop()
+
 st.markdown("""
 <style>
     [data-testid="stSidebar"] { background-color: #0F2B46; }
